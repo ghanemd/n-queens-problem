@@ -58,12 +58,22 @@ class NQueensSolver:
         pass
 
     def solve(self):
-        ...
+        return self.backtrack(dict())
 
-    def backtrack(self):
-        ...
+    def backtrack(self, assignement):
+        if self.assignement_complete(assignement):
+            return assignement
+        var = self.select_unassigned_variable(assignement)
+        for val in self.domains[var]:
+            assignement[var] = val
+            if self.assignement_consistent(assignement):
+                result = self.backtrack(assignement)
+                if result is not None:
+                    return result
+            del assignement[var]
+        return None
 
-    def select_unassigned_variable(self):     # Missing implementation using heuristics
+    def select_unassigned_variable(self, assignement):     # Missing implementation using heuristics
         pass
 
     def assignement_complete(self, assignement):
