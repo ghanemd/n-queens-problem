@@ -1,4 +1,5 @@
 import sys
+import random
 
 class Variable:
     def __init__(self, i, j):
@@ -54,13 +55,24 @@ class NQueensSolver:
             for var in self.nqueens_board.variables
         }
 
-    def save(self, file_name):      # Missing implementation using the pillow library
+    def save(self,assignement, file_name):      # Missing implementation using the pillow library
         pass
 
     def solve(self):
+        """
+        Solve the CSP.
+        """
         return self.backtrack(dict())
 
     def backtrack(self, assignement):
+        """
+        Using Backtracking Search, take as input a partial assignment
+        and return a complete assignment if possible to do so.
+
+        `assignment` is a mapping from variables (keys) to a truth value (False or True).
+
+        If no assignment is possible, return None.
+        """
         if self.assignement_complete(assignement):
             return assignement
         var = self.select_unassigned_variable(assignement)
@@ -73,8 +85,11 @@ class NQueensSolver:
             del assignement[var]
         return None
 
-    def select_unassigned_variable(self, assignement):     # Missing implementation using heuristics
-        pass
+    def select_unassigned_variable(self, assignement):     
+        """
+        Return an unassigned variable randomly. 
+        """
+        return random.choice([var for var in self.domains if var not in assignement])
 
     def assignement_complete(self, assignement):
         """
@@ -93,6 +108,8 @@ class NQueensSolver:
 
 
 def main():
+
+    # Check command-line arguments
     if len(sys.argv) == 3 and (sys.argv[1] == "-n" or sys.argv[1] == "--number"):
         try:
             N = int(sys.argv[2])
