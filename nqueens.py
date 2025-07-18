@@ -49,10 +49,13 @@ class NQueensBoard:
 class NQueensSolver:
     def __init__(self, nqueens_board):
         self.nqueens_board = nqueens_board
-        self.domains = ...
+        self.domains = {
+            var: {True, False}
+            for var in self.nqueens_board.variables
+        }
 
     def save(self, file_name):      # Missing implementation using the pillow library
-        ...
+        pass
 
     def solve(self):
         ...
@@ -61,13 +64,22 @@ class NQueensSolver:
         ...
 
     def select_unassigned_variable(self):     # Missing implementation using heuristics
-        ...
+        pass
 
-    def assignement_complete(self):
-        ...
+    def assignement_complete(self, assignement):
+        """
+        Check if all the variables are assigned.
+        """
+        return len(assignement) == len(self.domains)
 
-    def assignement_consistent(self):
-        ...
+    def assignement_consistent(self, assignement):
+        """
+        Check if the constraints in a given assignement are satisfied.
+        """
+        for var in assignement:
+            if assignement[var] and any(assignement[v] for v in self.nqueens_board.neighbors(var)):
+                return False
+        return True
 
 
 def main():
