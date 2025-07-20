@@ -67,8 +67,7 @@ class NQueensSolver:
                     draw.rectangle(rect, fill="white")
 
                 if self.queen_in_cell(assignment, i, j):
-                    queen = queen.convert("RGBA")
-                    img.paste(queen, rect[0], queen.split()[3])
+                    img.paste(queen, rect[0], queen)
                                 
         img.save(file_name)
 
@@ -155,16 +154,6 @@ def main():
                 print("No solution")
             else:
                 nqueens_solver.save(assignment, output)
-                sol = []
-                for i in range(N):
-                    row = []
-                    for j in range(N):
-                        row.append(False)
-                    sol.append(row)
-                for var in assignment:
-                    sol[var.row][assignment[var]] = True
-                for row in sol:
-                    print(row)
                 
     else:
         sys.exit("Invalid Usage")
