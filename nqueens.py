@@ -2,60 +2,39 @@ import sys
 import random
 
 class Variable:
-    def __init__(self, i, j):
+    def __init__(self, row):
         """
-        Create a new variable containing the row number and the col number.
+        Create a new variable containing the row number.
         """
-        self.i = i
-        self.j = j
+        self.row = row
 
     def __eq__(self, other):
-        return self.i == other.i and self.j == other.j 
+        return self.row == other.row
     
     def __hash__(self):
-        return hash((self.i, self.j))
+        return hash(self.row)
     
     def __str__(self):
-        return f"i = {self.i}, j = {self.j}"
+        return f"row = {self.row}"
     
 
 class NQueensBoard:
     def __init__(self, N):
         self.N = N
-
-        self.height = N
-        self.width = N
-
-        self.variables = set()
-        for i in range(self.height):
-            for j in range(self.width):
-                self.variables.add(Variable(i, j))
-
-    def are_neighbors(self, var1, var2):
-        """
-        Check if two variables are neighbors.
-        """
-        return var1.i == var2.i or var1.j == var2.j or (abs((var1.j-var2.j)/(var1.i-var2.i)) == 1 or abs((var1.j-var2.j)/(var1.i-var2.i)) == -1)
-    
-    def neighbors(self, var):
-        """
-        Return a set of the neighbors of var.
-        """
-        return set(
-            v for v in self.variables
-            if v != var and self.are_neighbors(v, var)
-        )
+        self.variables = {
+            Variable(i) for i in range(self.N)
+        }
 
 
 class NQueensSolver:
     def __init__(self, nqueens_board):
         self.nqueens_board = nqueens_board
         self.domains = {
-            var: {True, False}
+            var: set(range(self.nqueens_board.N))
             for var in self.nqueens_board.variables
         }
 
-    def save(self,assignement, file_name):      # Missing implementation using the pillow library
+    def save(self,assignment, file_name):      # Missing implementation using the pillow library
         pass
 
     def solve(self):
@@ -64,7 +43,7 @@ class NQueensSolver:
         """
         return self.backtrack(dict())
 
-    def backtrack(self, assignement):
+    def backtrack(self, assignment):
         """
         Using Backtracking Search, take as input a partial assignment
         and return a complete assignment if possible to do so.
@@ -73,37 +52,44 @@ class NQueensSolver:
 
         If no assignment is possible, return None.
         """
-        if self.assignement_complete(assignement):
-            return assignement
-        var = self.select_unassigned_variable(assignement)
+        if self.assignment_complete(assignment):
+            return assignment
+        var = self.select_unassigned_variable(assignment)
         for val in self.domains[var]:
-            assignement[var] = val
-            if self.assignement_consistent(assignement):
-                result = self.backtrack(assignement)
+            assignment[var] = val
+            if self.assignment_consistent(assignment):
+                result = self.backtrack(assignment)
                 if result is not None:
                     return result
-            del assignement[var]
+            del assignment[var]
         return None
 
-    def select_unassigned_variable(self, assignement):     
+    def select_unassigned_variable(self, assignment):     
         """
         Return an unassigned variable randomly. 
         """
-        return random.choice([var for var in self.domains if var not in assignement])
+        return random.choice([var for var in self.domains if var not in assignment])
 
-    def assignement_complete(self, assignement):
+    def assignment_complete(self, assignment):
         """
         Check if all the variables are assigned.
         """
-        return len(assignement) == len(self.domains)
+        return len(assignment) == self.nqueens_board.N
 
-    def assignement_consistent(self, assignement):
+    def assignment_consistent(self, assignment):
         """
         Check if the constraints in a given assignement are satisfied.
         """
-        for var in assignement:
-            if assignement[var] and any(assignement[v] for v in self.nqueens_board.neighbors(var)):
-                return False
+        for var1 in assignment:
+            for var2 in assignment:
+                
+                if var1 == var2:
+                    continue
+                if assignment[var1] == assignment[var2]:
+                    return False
+                if abs(var1.row - var2.row) == abs(assignment[var1] - assignment[var2]):
+                    return False
+                
         return True
 
 
@@ -118,11 +104,21 @@ def main():
         else:
             nqueens_board = NQueensBoard(N)
             nqueens_solver = NQueensSolver(nqueens_board)
-            assignements = nqueens_solver.solve()
-            if not assignements:
+            assignment = nqueens_solver.solve()
+            if not assignment:
                 print("No solution")
             else:
-                pass
+                sol = []
+                for i in range(N):
+                    row = []
+                    for j in range(N):
+                        row.append(False)
+                    sol.append(row)
+                for var in assignment:
+                    sol[var.row][assignment[var]] = True
+                for row in sol:
+                    print(row)
+                
     else:
         sys.exit("Invalid Usage")
 
