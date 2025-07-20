@@ -1,5 +1,6 @@
 import sys
 import random
+from PIL import Image, ImageDraw
 
 class Variable:
     def __init__(self, row):
@@ -35,7 +36,50 @@ class NQueensSolver:
         }
 
     def save(self,assignment, file_name):      # Missing implementation using the pillow library
-        pass
+        """
+        Save the assignment to an image file.
+        """
+        cell_size = 50
+        cell_border = 2
+        img = Image.new(
+            "RGBA",
+            (self.nqueens_board.N * cell_size,
+             self.nqueens_board.N * cell_size),
+            "black"
+        )
+        queen = Image.open("queen.png").resize(
+            (cell_size, cell_size)
+        )
+        draw = ImageDraw.Draw(img)
+        for i in range(self.nqueens_board.N):
+            for j in range(self.nqueens_board.N):
+
+                rect = [
+                    (j * cell_size + cell_border,
+                     i * cell_size + cell_border),
+                    ((j + 1) * cell_size - cell_border,
+                     (i + 1) * cell_size - cell_border)
+                ]
+
+                if i % 2 == j % 2 :
+                    draw.rectangle(rect, fill="green")
+                else:
+                    draw.rectangle(rect, fill="white")
+
+                if self.queen_in_cell(assignment, i, j):
+                    queen = queen.convert("RGBA")
+                    img.paste(queen, rect[0], queen.split()[3])
+                                
+        img.save(file_name)
+
+    def queen_in_cell(self, assignment, i, j):
+        """
+        Check if there is a queen in the cell (i, j).
+        """
+        for var in assignment:
+            if var.row == i and assignment[var] == j:
+                return True
+        return False
 
     def solve(self):
         """
@@ -96,7 +140,8 @@ class NQueensSolver:
 def main():
 
     # Check command-line arguments
-    if len(sys.argv) == 3 and (sys.argv[1] == "-n" or sys.argv[1] == "--number"):
+    if len(sys.argv) == 4 and (sys.argv[1] == "-n" or sys.argv[1] == "--number"):
+
         try:
             N = int(sys.argv[2])
         except ValueError:
@@ -105,9 +150,11 @@ def main():
             nqueens_board = NQueensBoard(N)
             nqueens_solver = NQueensSolver(nqueens_board)
             assignment = nqueens_solver.solve()
+            output = sys.argv[3]
             if not assignment:
                 print("No solution")
             else:
+                nqueens_solver.save(assignment, output)
                 sol = []
                 for i in range(N):
                     row = []
